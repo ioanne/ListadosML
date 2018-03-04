@@ -74,7 +74,7 @@ class HomeView(TemplateView):
                 'form': form,
                 'authenticated': api_authenticated,
                 'user': current_user,
-                'user_api': user,
+                'user_api': '',
                 'Error' : ''
                 }
         else:
@@ -92,32 +92,42 @@ class ListingsView(TemplateView):
     template_name = 'listing/listings.html'
     def get_context_data(self, *args, **kwargs):
             application_id = self.request.GET.get('application')
-            data = Application.get_by_id(int(application_id))
+            current_user = self.request.user
+            api = Application.get_by_user(current_user)
 
-            meli = Meli(
-                    client_id=data.app_id,
-                    client_secret=data.secret_key,
-                    access_token=data.access_token,
-                    refresh_token=data.refresh_token
-                    )
+            if api:
+                api_authenticated = Application.get_authorized(user=current_user)
+                if api_authenticated:
 
-            access_token = meli.get_refresh_token()
-            data.refresh_token = meli.refresh_token
-            data.save()
+                    meli = Meli(
+                            client_id=api_authenticated.app_id,
+                            client_secret=api_authenticated.secret_key,
+                            access_token=api_authenticated.access_token,
+                            refresh_token=api_authenticated.refresh_token
+                            )
 
-            if (access_token):
-                user = meli.get(
-                        '/users/me?access_token={}'
-                        .format(access_token))
+                    access_token = meli.get_refresh_token()
+                    api_authenticated.refresh_token = meli.refresh_token
+                    api_authenticated.save()
 
-                return {
-                    'user_info': user,
-                    'Error': '',
-                    'application': application_id
-                    }
-            else:
-                return {
-                    'Error': 'No se pudo obtener el Token'
+                    if (access_token):
+                        user = meli.get(
+                                '/users/me?access_token={}'
+                                .format(access_token))
+                        user_info = json.loads(user.text)
+
+                        return {
+                            'user_info': user_info,
+                            'Error': '',
+                            'application': application_id
+                            }
+                    else:
+                        return {
+                            'Error': 'No se pudo obtener el Token'
+                            }
+                else:
+                    return {
+                        'Error': 'Usuario no autenticado'
                     }
 
 
