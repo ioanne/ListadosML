@@ -44,34 +44,42 @@ class HomeView(TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         current_user = self.request.user
-        api_authenticated = Application.get_authorized(user=current_user)
 
-        if api_authenticated:
-            meli = Meli(
-                    client_id=api_authenticated.app_id,
-                    client_secret=api_authenticated.secret_key,
-                    access_token=api_authenticated.access_token,
-                    refresh_token=api_authenticated.refresh_token
-                    )
+        api = Application.get_by_user(current_user)
+        if api:
+            api_authenticated = Application.get_authorized(user=current_user)
 
-            access_token = meli.get_refresh_token()
-            api_authenticated.refresh_token = meli.refresh_token
-            api_authenticated.save()
+            if api_authenticated:
+                meli = Meli(
+                        client_id=api_authenticated.app_id,
+                        client_secret=api_authenticated.secret_key,
+                        access_token=api_authenticated.access_token,
+                        refresh_token=api_authenticated.refresh_token
+                        )
 
-            if access_token:
-                user = meli.get(
-                        '/users/me?access_token={}'
-                        .format(access_token))
-        
-        form = SelectAppForm()
-        form.fields['application'].queryset = Application.objects.filter(user=current_user)
+                access_token = meli.get_refresh_token()
+                api_authenticated.refresh_token = meli.refresh_token
+                api_authenticated.save()
 
-        
-        return {
-            'form': form,
-            'authenticated': api_authenticated,
-            'user': current_user,
-            'user_api': user
+                if access_token:
+                    user = meli.get(
+                            '/users/me?access_token={}'
+                            .format(access_token))
+            
+            form = SelectAppForm()
+            form.fields['application'].queryset = Application.objects.filter(user=current_user)
+
+            
+            return {
+                'form': form,
+                'authenticated': api_authenticated,
+                'user': current_user,
+                'user_api': user,
+                'Error' : ''
+                }
+        else:
+            return {
+                'Error': 'Este usuario no tiene aplicacion de ML asociada.'
             }
 
 
@@ -168,7 +176,7 @@ class ListingHigherPrice(TemplateView):
         Listado de la categoria ordenados por mayor precio
         mostrando solo los 10 mas caros.
     """
-    
+
     template_name = 'listing/higher_price.html'
 
     def get_context_data(self, *args, **kwargs):
