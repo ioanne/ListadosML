@@ -1,0 +1,37 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+{% if not Error %}
+<div>
+    <p>Bienvenido {{ user_info.nickname }}.</p>
+</div>
+<div class="container">
+        <h2>Top 10 de productos mas caros</h2>
+        <p>Ordenados por mayor precio</p> 
+    
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Titulo</th>
+                    <th>Link</th>
+                    <th>Precio</th>
+                </tr>
+            </thead>
+            {% for product in products %}
+            <tbody>
+                <tr>
+                    <td width="40%">{{ product.title }}</td>
+                    <td width="45%">{{ product.permalink }}</td>
+                    <td width="15%">{{ product.price }}</td>
+                </tr>
+            </tbody>
+            {% endfor %}
+        </table>
+        <a href="/listados?application={{ application }}" class="btn btn-primary">Volver</a>
+
+</div>
+{% else %}
+La sesion caduco <a href="/authorize">Click aqui para autenticar en ML</a>
+{% endif %}
+
+{% endblock %}

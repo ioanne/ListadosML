@@ -1,0 +1,19 @@
+{% extends 'layout.html' %}
+{% block content %}
+<p>Bienvenido {{ user.username }}</p>
+{% if not authenticated %}
+    <p>Selecciona la aplicacion a la cual te deseas conectar</p>
+    <div class="container">
+        <form method="GET" action="/authorizing">
+            <div class="form-group">
+                {{ form.application }}
+            </div>
+
+            <button type="submit" class="btn btn-primary">Iniciar Api</button>
+
+        </form>
+    </div>
+{% else %}
+Ya se encuentra seleccionada la aplicacion <a href="/authorized?application={{ authenticated.id }}">Click aqui para continuar</a>
+{% endif %}
+{% endblock %}

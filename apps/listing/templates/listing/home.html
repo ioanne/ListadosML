@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% if not authenticated %}
+    <div class="container">
+        <p>Selecciona la aplicacion a la cual te deseas conectar</p>
+        <form method="GET" action="/listados">
+            <div class="form-group">
+                {{ form.application }}
+            </div>
+            <input type="hidden" name="authenticated" value="{{ authenticated.id }}" /> 
+            <button type="submit" class="btn btn-primary">Submit</button>
+
+        </form>
+    </div>
+{% else %}
+<div class="container">
+    <p>
+        Bienvenido {{ user_api.nickname }}
+        
+    </p>
+    <p>
+        <a href="/listados?application={{ authenticated.id }}">Click aqui para ver los listados disponibles</a>
+    </p>
+</div>
+    
+{% endif %}
+{% endblock %}

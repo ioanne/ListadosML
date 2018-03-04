@@ -1,0 +1,21 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    {% if not Error%}
+    <div>
+            <p>Bienvenido {{ user.nickname }}.</p>
+    </div>
+    <div>
+        <h2>Listados disponibles</h2>
+        <p>
+            <a href="/listados/higer-price?application={{ application }}"> Top 10</a>
+        </p>
+        <p>
+            <a href="/listados/top-seller?application={{ application }}">Top 10 Sellers</a>
+        </p>
+    </div>
+    {% else %}
+    <p>caduco <a href="/authorize">Autenticar</a></p>
+    {% endif %}
+
+{% endblock %}
